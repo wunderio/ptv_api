@@ -5,7 +5,7 @@ Provides integration with the Finnish **PTV (Palvelutietovaranto)** API for Drup
 ## Requirements
 
 - Drupal 11+
-- [Key](https://www.drupal.org/project/key) module (`^2.0`)
+- [Key](https://www.drupal.org/project/key) module (`^1.22`)
 - [Parsedown](https://github.com/erusev/parsedown) PHP library (`^1.8`)
 - Drupal core Migrate module
 
