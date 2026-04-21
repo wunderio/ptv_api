@@ -1,0 +1,6 @@
+ptv_api.settings:
+  title: 'PTV API Settings'
+  description: 'Configure PTV API connection settings.'
+  route_name: ptv_api.settings
+  parent: system.admin_config_services
+  weight: 10

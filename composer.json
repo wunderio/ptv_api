@@ -1,0 +1,20 @@
+{
+  "name": "drupal/ptv_api",
+  "type": "drupal-module",
+  "description": "Provides integration with the Finnish PTV (Palvelutietovaranto) API.",
+  "license": "GPL-2.0-or-later",
+  "homepage": "https://www.drupal.org/project/ptv_api",
+  "require": {
+    "drupal/key": "^2.0",
+    "erusev/parsedown": "^1.8"
+  },
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/ptv_api"
+  },
+  "extra": {
+    "drupal": {
+      "module-name": "PTV API"
+    }
+  }
+}

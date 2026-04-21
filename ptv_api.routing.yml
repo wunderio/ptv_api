@@ -1,0 +1,7 @@
+ptv_api.settings:
+  path: '/admin/config/services/ptv-api'
+  defaults:
+    _form: '\Drupal\ptv_api\Form\PtvApiSettingsForm'
+    _title: 'PTV API Settings'
+  requirements:
+    _permission: 'administer site configuration'
