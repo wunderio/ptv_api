@@ -100,7 +100,7 @@ abstract class PtvSourceBase extends SourcePluginBase implements ContainerFactor
   /**
    * {@inheritdoc}
    */
-  public function initializeIterator(): \Iterator {
+  public function initializeIterator() {
     $rows = $this->ptvClient->serviceSearch($this->params);
     // Return an \Iterator over your source data.
     return new \ArrayIterator($rows);
