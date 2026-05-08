@@ -98,10 +98,32 @@ abstract class PtvSourceBase extends SourcePluginBase implements ContainerFactor
   }
 
   /**
+   * Internal helper to inject settings to source data.
+   */
+  protected function injectLangcodeToArray(array $rows): array {
+    if ($this->langcode) {
+      $rows = array_map(function (array $row): array {
+        $row['langcode'] = $this->langcode;
+        return $row;
+      }, $rows);
+    }
+
+    return $rows;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function initializeIterator() {
     $rows = $this->ptvClient->serviceSearch($this->params);
+
+    if ($this->langcode) {
+      $rows = array_map(function (array $row): array {
+        $row['langcode'] = $this->langcode;
+        return $row;
+      }, $rows);
+    }
+
     // Return an \Iterator over your source data.
     return new \ArrayIterator($rows);
   }
@@ -152,8 +174,6 @@ abstract class PtvSourceBase extends SourcePluginBase implements ContainerFactor
    */
   public function prepareRow(Row $row): bool {
     if ($this->langcode) {
-      $row->setSourceProperty('langcode', $this->langcode);
-
       if ($this->skipMissingTranslations) {
         $language_versions = $row->getSourceProperty('languageVersions');
         // Skip non translated items.

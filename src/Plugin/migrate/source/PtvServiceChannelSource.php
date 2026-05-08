@@ -17,6 +17,9 @@ class PtvServiceChannelSource extends PtvSourceBase {
    */
   public function initializeIterator() {
     $rows = $this->ptvClient->serviceChannelSearch($this->params);
+
+    $rows = $this->injectLangcodeToArray($rows);
+
     // Return an \Iterator over your source data.
     return new \ArrayIterator($rows);
   }
