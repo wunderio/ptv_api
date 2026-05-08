@@ -9,6 +9,16 @@ Provides integration with the Finnish **PTV (Palvelutietovaranto)** API for Drup
 - [Parsedown](https://github.com/erusev/parsedown) PHP library (`^1.8`)
 - Drupal core Migrate module
 
+## Installation
+
+1. **Require the module and its dependencies via Composer:**
+    This will also install the required `drupal/key` module and the `erusev/parsedown` library
+2. **Enable the module** using Drush:
+    ```
+    drush en ptv_api
+    ```
+    Or navigate to **Administration → Extend** (`/admin/modules`), find **PTV API** in the list, check the box, and click **Install**.
+
 ## Configuration
 
 1. **Store your API key** using the [Key](https://www.drupal.org/project/key) module at `/admin/config/system/keys`.
@@ -27,6 +37,7 @@ The `ptv_api.client` service (`PtvClient`) handles all communication with the PT
 - Response caching (4-hour TTL by default) via a dedicated cache bin (`ptv_bin`).
 - Service search, service channel search, and connection search.
 - Postal code lookups via the Finnish national geo WFS service (`geo.stat.fi`).
+  - This will be removed when we get post offices to offical end point.
 
 ### Migrate Plugins
 
