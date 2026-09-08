@@ -3,7 +3,8 @@ type: module
 description: Provides integration with the Finnish PTV (Palvelutietovaranto) API.
 package: Custom
 core_version_requirement: ^11
-version: '0.1.1'
+version: '0.1.2'
 dependencies:
   - drupal:migrate
   - key:key
+configure: ptv_api.settings
