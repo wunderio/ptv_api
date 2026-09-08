@@ -59,7 +59,6 @@ class PtvServiceConnection extends ProcessPluginBase implements ContainerFactory
     );
   }
 
-
   /**
    * {@inheritdoc}
    */

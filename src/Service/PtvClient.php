@@ -6,6 +6,7 @@ use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\key\Exception\KeyValueNotRetrievedException;
 use Drupal\key\KeyRepositoryInterface;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
@@ -193,7 +194,7 @@ class PtvClient {
 
     if (!$key) {
       $this->logger->error('PTV API key is not configured. Visit /admin/config/services/ptv-api to set it.');
-      return [];
+      throw new KeyValueNotRetrievedException();
     }
 
     $options['headers']['Accept'] = 'application/json';
