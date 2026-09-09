@@ -22,6 +22,7 @@ Provides integration with the Finnish **PTV (Palvelutietovaranto)** API for Drup
 ## Configuration
 
 1. **Store your API key** using the [Key](https://www.drupal.org/project/key) module at `/admin/config/system/keys`.
+  - For ddev environments, store the key in `.ddev/.env` as an environment variable.
 2. Navigate to **Administration → Configuration → Web services → PTV API Settings** (`/admin/config/services/ptv-api`).
 3. Select the **PTV environment** (Production or Training).
 4. Select the **API key** from the Key repository.
