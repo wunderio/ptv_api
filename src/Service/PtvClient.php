@@ -22,6 +22,11 @@ class PtvClient {
   const GEO_STAT_WFS_BASE_URI = 'https://geo.stat.fi/geoserver/wfs';
 
   /**
+   * Absolute upper bound on paginated fetches (safety net).
+   */
+  const MAX_PAGES_HARD_LIMIT = 500;
+
+  /**
    * Available base URI options keyed by URI.
    */
   const BASE_URI_OPTIONS = [
@@ -100,38 +105,48 @@ class PtvClient {
    *
    * @param array $params
    *   The query parameters for the service search.
-   *
-   * @return array
-   *   A flat array of all service items across all pages.
+   * @param int|null $maxPages
+   *   Maximum number of pages to fetch. NULL for all (up to hard limit).
    */
-  public function serviceSearch(array $params): array {
-    return $this->paginatedCalls('service/search', $params);
+  public function serviceSearch(array $params, ?int $maxPages = NULL): array {
+    return $this->paginatedCalls('service/search', $params, $maxPages);
   }
 
   /**
    * Searches for service channels using the PTV API with paginated results.
    *
    * @param array $params
-   *   The query parameters for the service channel search.
-   *
-   * @return array
-   *   A flat array of all service channel items across all pages.
+   *   The query parameters for the service search.
+   * @param int|null $maxPages
+   *   Maximum number of pages to fetch. NULL for all (up to hard limit).
    */
-  public function serviceChannelSearch(array $params): array {
-    return $this->paginatedCalls('service-channel/search', $params);
+  public function serviceChannelSearch(array $params, ?int $maxPages = NULL): array {
+    return $this->paginatedCalls('service-channel/search', $params, $maxPages);
   }
 
   /**
    * Searches for connections using the PTV API with paginated results.
    *
    * @param array $params
-   *   The query parameters for the connection search.
+   *   The query parameters for the service search.
+   * @param int|null $maxPages
+   *   Maximum number of pages to fetch. NULL for all (up to hard limit).
+   */
+  public function connectionSearch(array $params, ?int $maxPages = NULL): array {
+    return $this->paginatedCalls('connection/search', $params, $maxPages);
+  }
+
+  /**
+   * Fetch a single service by content ID.
+   *
+   * @param string $content_id
+   *   The PTV content ID of the service.
    *
    * @return array
-   *   A flat array of all connection items across all pages.
+   *   The decoded JSON response for the service, or an empty array on failure.
    */
-  public function connectionSearch(array $params): array {
-    return $this->paginatedCalls('connection/search', $params);
+  public function getService(string $content_id): array {
+    return $this->cachedPtvRequest('GET', 'service/' . $content_id, []);
   }
 
   /**
@@ -144,7 +159,7 @@ class PtvClient {
    *   The decoded JSON response for the service channel, or an empty array on failure.
    */
   public function getServiceChannel(string $content_id): array {
-    return $this->cachedPtvRequest('GET', "service-channel/" . $content_id, []);
+    return $this->cachedPtvRequest('GET', 'service-channel/' . $content_id, []);
   }
 
   /**
@@ -154,22 +169,45 @@ class PtvClient {
    *   The PTV endpoint path (relative to the base URI).
    * @param array $params
    *   The query parameters. 'page' and 'pageSize' can be overridden.
-   *
-   * @return array
-   *   A flat array of all items across all paginated responses.
+   * @param int|null $maxPages
+   *   Optional cap on the number of pages to fetch. When NULL, the hard
+   *   limit (self::MAX_PAGES_HARD_LIMIT) is used to prevent runaway loops
+   *   when callers pass empty/unfiltered queries.
    */
-  protected function paginatedCalls(string $url, array $params): array {
+  protected function paginatedCalls(string $url, array $params, ?int $maxPages = NULL): array {
     $params['page'] = $params['page'] ?? 0;
     $params['pageSize'] = $params['pageSize'] ?? 100;
     $options['query'] = $params;
+
+    // Safety net: never fetch more than the hard limit, even if caller
+    // requests "all". Debug/UI callers should pass a small $maxPages.
+    $effectiveCap = self::MAX_PAGES_HARD_LIMIT;
+    if ($maxPages !== NULL && $maxPages > 0) {
+      $effectiveCap = min($maxPages, self::MAX_PAGES_HARD_LIMIT);
+    }
+
     $total_pages = 1;
     $items = [];
+    $pages_fetched = 0;
 
-    while ($options['query']['page'] < $total_pages) {
+    while ($options['query']['page'] < $total_pages && $pages_fetched < $effectiveCap) {
       $options['query']['page']++;
       $call = $this->cachedPtvRequest('GET', $url, $options);
       $items = [...$items, ...($call['items'] ?? [])];
       $total_pages = $call['totalPages'] ?? 1;
+      $pages_fetched++;
+    }
+
+    if ($pages_fetched >= $effectiveCap && $options['query']['page'] < $total_pages) {
+      $this->logger->warning(
+        'PTV paginated call to @url stopped at cap @cap of @total pages (params: @params).',
+        [
+          '@url' => $url,
+          '@cap' => $effectiveCap,
+          '@total' => $total_pages,
+          '@params' => Json::encode($params),
+        ]
+      );
     }
 
     return $items;

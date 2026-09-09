@@ -1,0 +1,12 @@
+# web/modules/contrib/ptv_api/ptv_api.links.task.yml
+ptv_api.settings_tab:
+  title: 'Configuration'
+  route_name: ptv_api.settings
+  base_route: ptv_api.settings
+  weight: 0
+
+ptv_api.debug_tab:
+  title: 'Debug'
+  route_name: ptv_api.debug
+  base_route: ptv_api.settings
+  weight: 10

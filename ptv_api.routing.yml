@@ -5,3 +5,19 @@ ptv_api.settings:
     _title: 'PTV API Settings'
   requirements:
     _permission: 'administer site configuration'
+
+ptv_api.debug:
+  path: '/admin/config/services/ptv-api/debug'
+  defaults:
+    _controller: '\Drupal\ptv_api\Controller\PtvDebugController::debugPage'
+    _title: 'PTV API Debug'
+  requirements:
+    _permission: 'administer site configuration'
+
+ptv_api.debug.ajax:
+  path: '/api/ptv-debug/ajax'
+  defaults:
+    _controller: '\Drupal\ptv_api\Controller\PtvDebugController::debugAjax'
+  requirements:
+    _permission: 'administer site configuration'
+    _method: 'GET'
