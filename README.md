@@ -11,7 +11,16 @@ Provides integration with the Finnish **PTV (Palvelutietovaranto)** API for Drup
 
 ## Installation
 
-1. **Require the module and its dependencies via Composer:**
+1. **Require the module and its dependencies via Composer**
+    
+    You need the following addition in your `composer.json` under the `repositories` section:
+
+    ```
+        {
+            "type": "vcs",
+            "url": "https://github.com/wunderio/ptv_api"
+        },
+    ```
     This will also install the required `drupal/key` module and the `erusev/parsedown` library
 2. **Enable the module** using Drush:
     ```

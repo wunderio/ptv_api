@@ -58,7 +58,7 @@ class PtvApiDebugForm extends FormBase {
       $auto_run = !empty($prefill['auto_run']);
       unset($prefill['auto_run']);
 
-      foreach (['search_type', 'service_ids', 'channel_ids', 'content_id'] as $key) {
+      foreach (['search_type', 'service_ids', 'channel_ids', 'content_id', 'organization_id'] as $key) {
         if (isset($prefill[$key])) {
           $form_state->setValue($key, (string) $prefill[$key]);
         }
@@ -120,6 +120,21 @@ class PtvApiDebugForm extends FormBase {
             ['value' => 'services'],
             ['value' => 'channels'],
             ['value' => 'connection'],
+          ],
+        ],
+      ],
+    ];
+
+    $form['organization_id'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Organization ID'),
+      '#description' => $this->t('Optional organization content ID for filtering.'),
+      '#default_value' => $form_state->getValue('organization_id') ?? '',
+      '#states' => [
+        'visible' => [
+          ':input[name="search_type"]' => [
+            ['value' => 'services'],
+            ['value' => 'channels'],
           ],
         ],
       ],
@@ -284,6 +299,7 @@ class PtvApiDebugForm extends FormBase {
     $params = $is_paginated ? $this->buildParams($form_state, $search_type) : [];
     $max_pages = $is_paginated ? max(1, (int) ($form_state->getValue('max_pages') ?: 1)) : 1;
     $content_id = trim((string) $form_state->getValue('content_id'));
+    $organization_id = trim((string) $form_state->getValue('organization_id'));
 
     try {
       $start = microtime(TRUE);
@@ -306,13 +322,15 @@ class PtvApiDebugForm extends FormBase {
         'ms' => $ms,
         'max_pages' => $is_paginated ? $max_pages : NULL,
         'content_id' => $search_type === 'service' ? $content_id : NULL,
+        'organization_id' => in_array($search_type, ['services', 'channels'], TRUE) && $organization_id !== '' ? $organization_id : NULL,
       ]);
 
-      $this->logger->info('PTV debug query executed: type={type}, count={count}, max_pages={max_pages}, content_id={content_id}', [
+      $this->logger->info('PTV debug query executed: type={type}, count={count}, max_pages={max_pages}, content_id={content_id}, organization_id={organization_id}', [
         'type' => $search_type,
         'count' => $result_count,
         'max_pages' => $is_paginated ? $max_pages : '-',
-        'content_id' => $search_type === 'service' ? $content_id : '-',
+        'content_id' => $search_type === 'service' ? $content_id : 'N/A',
+        'organization_id' => in_array($search_type, ['services', 'channels'], TRUE) ? $organization_id : 'N/A',
       ]);
     }
     catch (KeyValueNotRetrievedException) {
@@ -348,6 +366,13 @@ class PtvApiDebugForm extends FormBase {
     $language = trim((string) $form_state->getValue('language'));
     if ($language !== '') {
       $params['language'] = $language;
+    }
+
+    if (in_array($search_type, ['services', 'channels'], TRUE)) {
+      $organization_id = trim((string) $form_state->getValue('organization_id'));
+      if ($organization_id !== '') {
+        $params['organizationContentIds'] = $organization_id;
+      }
     }
 
     if ($search_type === 'connection') {
