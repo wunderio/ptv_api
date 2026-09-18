@@ -181,7 +181,11 @@ abstract class PtvSourceBase extends SourcePluginBase implements ContainerFactor
           return FALSE;
         }
 
+        $other_language_versions = $language_versions;
+        unset($other_language_versions[$this->langcode]);
+
         $row->setSourceProperty('languageVersions', $language_versions[$this->langcode]);
+        $row->setSourceProperty('otherLanguageVersions', $other_language_versions);
       }
     }
     return parent::prepareRow($row);
