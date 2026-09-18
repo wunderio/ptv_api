@@ -19,7 +19,6 @@ class PtvClient {
 
   const PTV_BASE_URI_PRODUCTION = 'https://api-gw.palvelutietovaranto.suomi.fi/api/v12/';
   const PTV_BASE_URI_TRAINING = 'https://api-gw.palvelutietovaranto.trn.suomi.fi/api/v12/';
-  const GEO_STAT_WFS_BASE_URI = 'https://geo.stat.fi/geoserver/wfs';
 
   /**
    * Absolute upper bound on paginated fetches (safety net).
@@ -82,22 +81,11 @@ class PtvClient {
    * @return array
    *   The decoded GeoJSON feature collection, or an empty array on failure.
    */
-  public function getPostalCodeInfo(string $postalCode): array {
-    $options = [
-      'query' => [
-        'service' => 'WFS',
-        'version' => '2.0.0',
-        'request' => 'GetFeature',
-        'typeName' => 'postialue:pno',
-        'outputFormat' => 'application/json',
-        'cql_filter' => "posti_alue='" . $postalCode . "'",
-      ],
-      'headers' => [
-        'Accept' => 'application/json',
-      ],
+  public function getPostalCodeInfo(string $postalCode, ?int $maxPages = NULL): array {
+    $params = [
+      "codes" => $postalCode,
     ];
-
-    return $this->cachedRequest('GET', self::GEO_STAT_WFS_BASE_URI, $options);
+    return $this->paginatedCalls('postal-codes', $params, $maxPages);
   }
 
   /**

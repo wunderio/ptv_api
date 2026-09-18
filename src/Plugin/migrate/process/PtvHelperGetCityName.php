@@ -67,8 +67,22 @@ class PtvHelperGetCityName extends ProcessPluginBase implements ContainerFactory
     if (empty($value)) {
       return NULL;
     }
-    $r = [];
 
-    return $this->ptvClient->getPostalCodeInfo($value)['features'][0]['properties'];
+    $r = $this->ptvClient->getPostalCodeInfo($value);
+
+    if (empty($r)) {
+      return NULL;
+    }
+
+    $r = reset($r);
+    if (!isset($r['name'])) {
+      return NULL;
+    }
+
+    foreach ($r['name'] as &$city) {
+      $city = mb_convert_case($city, MB_CASE_TITLE, "UTF-8");
+    }
+
+    return $r['name'];
   }
 }
