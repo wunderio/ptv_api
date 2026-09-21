@@ -73,13 +73,14 @@ class PtvClient {
   }
 
   /**
-   * Fetches postal code area info from the Finnish national geo WFS service.
+   * Fetches postal code info from the PTV
    *
    * @param string $postalCode
    *   The postal code to look up (e.g. '99100').
    *
    * @return array
-   *   The decoded GeoJSON feature collection, or an empty array on failure.
+   *   Array of postal codes that matches query.
+   *   https://docs.palvelutietovaranto.suomi.fi/api-documentation/v12/#tag/postal-codes/GET/api/v12/postal-codes
    */
   public function getPostalCodeInfo(string $postalCode, ?int $maxPages = NULL): array {
     $params = [
